@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using umbraco.DataLayer;
+using Umbraco.Forms.Migration.DataLayer;
 
 namespace Umbraco.Forms.Migration.Data.Storage
 {

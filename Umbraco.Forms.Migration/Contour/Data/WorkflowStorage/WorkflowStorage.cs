@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Umbraco.Forms.Migration;
-using umbraco.DataLayer;
+using Umbraco.Forms.Migration.DataLayer;
 using Umbraco.Forms.Migration.Enums;
 
 
