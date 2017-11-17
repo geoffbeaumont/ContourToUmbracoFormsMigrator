@@ -23,6 +23,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -281,6 +282,47 @@
     <Compile Include="Contour\Providers\V6SqlHelperCreator.cs" />
     <Compile Include="Contour\Workflow.cs" />
     <Compile Include="Contour\WorkflowExecutionStatus.cs" />
+    <Compile Include="DataLayer\DataLayerHelper.cs" />
+    <Compile Include="DataLayer\Extensions\ISqlHelperExtension.cs" />
+    <Compile Include="DataLayer\Extensions\Logger.cs" />
+    <Compile Include="DataLayer\Extensions\SqlHelperExtender.cs" />
+    <Compile Include="DataLayer\Extensions\SqlHelperExtension.cs" />
+    <Compile Include="DataLayer\IParameter.cs" />
+    <Compile Include="DataLayer\IParameterContainer.cs" />
+    <Compile Include="DataLayer\IRecordsReader.cs" />
+    <Compile Include="DataLayer\ISqlHelper.cs" />
+    <Compile Include="DataLayer\RecordsReaderAdapter.cs" />
+    <Compile Include="DataLayer\SqlHelper.cs" />
+    <Compile Include="DataLayer\SqlHelperException.cs" />
+    <Compile Include="DataLayer\SqlHelpers\MySql\MySqlDataReader.cs" />
+    <Compile Include="DataLayer\SqlHelpers\MySql\MySqlHelper.cs" />
+    <Compile Include="DataLayer\SqlHelpers\MySql\MySqlInstaller.cs" />
+    <Compile Include="DataLayer\SqlHelpers\MySql\MySqlParameter.cs" />
+    <Compile Include="DataLayer\SqlHelpers\MySql\MySqlParser.cs" />
+    <Compile Include="DataLayer\SqlHelpers\MySql\MySqlUtility.cs" />
+    <Compile Include="DataLayer\SqlHelpers\SqlServer\SqlServerDataReader.cs" />
+    <Compile Include="DataLayer\SqlHelpers\SqlServer\SqlServerHelper.cs" />
+    <Compile Include="DataLayer\SqlHelpers\SqlServer\SqlServerInstaller.cs" />
+    <Compile Include="DataLayer\SqlHelpers\SqlServer\SqlServerParameter.cs" />
+    <Compile Include="DataLayer\SqlHelpers\SqlServer\SqlServerTableUtility.cs" />
+    <Compile Include="DataLayer\SqlHelpers\SqlServer\SqlServerUtility.cs" />
+    <Compile Include="DataLayer\SqlParameterAdapter.cs" />
+    <Compile Include="DataLayer\SqlParser.cs" />
+    <Compile Include="DataLayer\StringExtensions.cs" />
+    <Compile Include="DataLayer\Utility\BaseUtility.cs" />
+    <Compile Include="DataLayer\Utility\DefaultUtilitySet.cs" />
+    <Compile Include="DataLayer\Utility\Installer\DatabaseVersion.cs" />
+    <Compile Include="DataLayer\Utility\Installer\DefaultInstallerUtility.cs" />
+    <Compile Include="DataLayer\Utility\Installer\IInstallerUtility.cs" />
+    <Compile Include="DataLayer\Utility\Installer\VersionSpecs.cs" />
+    <Compile Include="DataLayer\Utility\IUtilitySet.cs" />
+    <Compile Include="DataLayer\Utility\Table\DefaultField.cs" />
+    <Compile Include="DataLayer\Utility\Table\DefaultTable.cs" />
+    <Compile Include="DataLayer\Utility\Table\DefaultTableUtility.cs" />
+    <Compile Include="DataLayer\Utility\Table\FieldProperties.cs" />
+    <Compile Include="DataLayer\Utility\Table\IField.cs" />
+    <Compile Include="DataLayer\Utility\Table\ITable.cs" />
+    <Compile Include="DataLayer\Utility\Table\ITableUtility.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

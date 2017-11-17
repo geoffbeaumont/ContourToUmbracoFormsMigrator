@@ -5,6 +5,7 @@
 *.suo
 *.user
 *.sln.docstates
+.vs/*
 
 # Build results
 [Dd]ebug/
@@ -228,4 +229,3 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
-/.vs/config
