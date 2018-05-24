@@ -32,178 +32,192 @@ namespace Umbraco.Forms.Migration
             {
                 foreach (var form in fs.GetAllForms(false))
                 {
-                    var v4Form = new Umbraco.Forms.Core.Form();
-
-                    v4Form.Id = form.Id;
-                    v4Form.Name = form.Name;
-                    v4Form.DisableDefaultStylesheet = form.DisableDefaultStylesheet;
-                    v4Form.FieldIndicationType = (FormFieldIndication)System.Enum.Parse(typeof(FormFieldIndication), ((int)form.FieldIndicationType).ToString());
-                    v4Form.GoToPageOnSubmit = form.GoToPageOnSubmit;
-                    v4Form.HideFieldValidation = form.HideFieldValidation;
-                    v4Form.Indicator = form.Indicator;
-                    v4Form.InvalidErrorMessage = form.InvalidErrorMessage;
-                    v4Form.ManualApproval = form.ManualApproval;
-                    v4Form.MessageOnSubmit = form.MessageOnSubmit;
-                    v4Form.RequiredErrorMessage = form.RequiredErrorMessage;
-                    v4Form.ShowValidationSummary = form.ShowValidationSummary;
-                    v4Form.StoreRecordsLocally = form.StoreRecordsLocally;
-                    v4Form.XPathOnSubmit = form.XPathOnSubmit;
-
-                    v4Form.NextLabel = "Next";
-                    v4Form.PrevLabel = "Previous";
-                    v4Form.SubmitLabel = "Submit";
-
-                    foreach(var page in form.Pages)
+                    Umbraco.Forms.Core.Form v4Form;
+                    try
                     {
-                        var v4Page = new Umbraco.Forms.Core.Page();
-
-                        v4Page.Caption = page.Caption;
-                       
-                       
-                        foreach(var fieldset in page.FieldSets)
-                        {
-                            var v4Fieldset = new Umbraco.Forms.Core.FieldSet();
-                            v4Fieldset.Caption = fieldset.Caption;
-
-                            var v4Container = new Umbraco.Forms.Core.FieldsetContainer();
-                            v4Container.Width = 12;
-
-                            foreach (var field in fieldset.Fields)
-                            {
-                                var v4Field = new Umbraco.Forms.Core.Field();
-                                v4Field.Id = field.Id;
-                                v4Field.Caption = field.Caption;
-                                v4Field.ToolTip = field.ToolTip;
-                                v4Field.FieldTypeId = field.FieldTypeId;
-                                v4Field.InvalidErrorMessage = field.InvalidErrorMessage;
-                                v4Field.Mandatory = field.Mandatory;
-                                v4Field.RequiredErrorMessage = field.RequiredErrorMessage;
-                                v4Field.RegEx = field.RegEx;
-
-                                using (var pvs = new PreValueStorage(sql))
-                                {
-                                    var prevalues = new List<string>();
-                                    foreach (var prevalue in pvs.GetAllPreValues(field).OrderBy(x => x.SortOrder))
-                                    {
-                                        prevalues.Add(prevalue.Value);
-                                    }
-                                    v4Field.PreValues = prevalues;
-                                }
-
-                                v4Field.Condition = new Core.FieldCondition();
-                                v4Field.Condition.Enabled = field.Condition.Enabled;
-                                v4Field.Condition.ActionType = (Core.FieldConditionActionType)System.Enum.Parse(typeof(Core.FieldConditionActionType), ((int)field.Condition.ActionType).ToString()); ;
-                                v4Field.Condition.LogicType = (Core.FieldConditionLogicType)System.Enum.Parse(typeof(Core.FieldConditionLogicType), ((int)field.Condition.LogicType).ToString()); ;
-
-                                var rules = new List<Core.FieldConditionRule>();
-                                foreach (var rule in field.Condition.Rules)
-                                {
-                                    var v4Rule = new Core.FieldConditionRule();
-
-                                    v4Rule.Field = rule.Field;
-                                    v4Rule.Operator = (Core.FieldConditionRuleOperator)System.Enum.Parse(typeof(Core.FieldConditionRuleOperator), ((int)rule.Operator).ToString()); ;
-                                    v4Rule.Value = rule.Value;
-
-                                    rules.Add(v4Rule);
-                                }
-                                v4Field.Condition.Rules = rules;
-
-                                using (var ss = new SettingsStorage(sql))
-                                {
-                                    foreach (var setting in  ss.GetSettingsAsList(field.Id))
-                                    {
-                                        v4Field.Settings.Add(setting.Key,setting.Value);
-                                    }
-                                }
-                                v4Container.Fields.Add(v4Field);
-                            }
-
-                            v4Fieldset.Containers.Add(v4Container);
-
-                            v4Page.FieldSets.Add(v4Fieldset);
-                        }
-
-                        v4Form.Pages.Add(v4Page);
+                        // Check for an existing form with that GUID
+                        using (var v4Fs = new Umbraco.Forms.Data.Storage.FormStorage())
+                            v4Form = v4Fs.GetForm(form.Id);
                     }
-
-                    using (var s = new Forms.Data.Storage.FormStorage())
+                    catch (NullReferenceException)
                     {
-                        v4Form = s.InsertForm(v4Form);
-                    }
+                        // Form hasn't been imported, import it now
+                        v4Form = new Umbraco.Forms.Core.Form();
 
-                    using (var ws = new WorkflowStorage(sql))
-                    {
-                        var wfs = ws.GetAllWorkFlows(form);
+                        v4Form.Id = form.Id;
+                        v4Form.Name = form.Name;
+                        v4Form.DisableDefaultStylesheet = form.DisableDefaultStylesheet;
+                        v4Form.FieldIndicationType = (FormFieldIndication)System.Enum.Parse(typeof(FormFieldIndication), ((int)form.FieldIndicationType).ToString());
+                        v4Form.GoToPageOnSubmit = form.GoToPageOnSubmit;
+                        v4Form.HideFieldValidation = form.HideFieldValidation;
+                        v4Form.Indicator = form.Indicator;
+                        v4Form.InvalidErrorMessage = form.InvalidErrorMessage;
+                        v4Form.ManualApproval = form.ManualApproval;
+                        v4Form.MessageOnSubmit = form.MessageOnSubmit;
+                        v4Form.RequiredErrorMessage = form.RequiredErrorMessage;
+                        v4Form.ShowValidationSummary = form.ShowValidationSummary;
+                        v4Form.StoreRecordsLocally = form.StoreRecordsLocally;
+                        v4Form.XPathOnSubmit = form.XPathOnSubmit;
 
-                        foreach (var workflow in wfs)
+                        v4Form.NextLabel = "Next";
+                        v4Form.PrevLabel = "Previous";
+                        v4Form.SubmitLabel = "Submit";
+
+                        foreach (var page in form.Pages)
                         {
-                            using (var wsv4 = new Forms.Data.Storage.WorkflowStorage())
-                            {
-                                var v4Workflow = new Core.Workflow();
-                                v4Workflow.Name = workflow.Name;
-                                v4Workflow.Id = workflow.Id;
-                                v4Workflow.Type = workflow.Type;
-                                v4Workflow.ExecutesOn = (Core.Enums.FormState)System.Enum.Parse(typeof(Core.Enums.FormState), ((int)workflow.ExecutesOn).ToString());
-                                v4Workflow.Form = v4Form.Id;
-                                v4Workflow.Settings = workflow.Settings;
-                                wsv4.InsertWorkflow(v4Form,v4Workflow);
-                            }
-                        }
-                    }
+                            var v4Page = new Umbraco.Forms.Core.Page();
 
-                    if (!IgnoreRecords)
-                    {
-                        // Fix the UFRecordDataString Value field length to be compatible with the old data.
-                        FixDataStringLength(sql);
+                            v4Page.Caption = page.Caption;
 
-                        // store records
-                        using (var rs = new RecordStorage(sql))
-                        {
-                            var records = rs.GetAllRecords(form);
-                            using (var rs4 = new Forms.Data.Storage.RecordStorage())
+
+                            foreach (var fieldset in page.FieldSets)
                             {
-                                foreach (var r in records)
+                                var v4Fieldset = new Umbraco.Forms.Core.FieldSet();
+                                v4Fieldset.Caption = fieldset.Caption;
+
+                                var v4Container = new Umbraco.Forms.Core.FieldsetContainer();
+                                v4Container.Width = 12;
+
+                                foreach (var field in fieldset.Fields)
                                 {
-                                    //if (rs4.GetRecordByUniqueId(r.Form) != null)
-                                    //{
-                                    //    // Don't import it again.
-                                    //    continue;
-                                    //}
+                                    var v4Field = new Umbraco.Forms.Core.Field();
+                                    v4Field.Id = field.Id;
+                                    v4Field.Caption = field.Caption;
+                                    v4Field.ToolTip = field.ToolTip;
+                                    v4Field.FieldTypeId = field.FieldTypeId;
+                                    v4Field.InvalidErrorMessage = field.InvalidErrorMessage;
+                                    v4Field.Mandatory = field.Mandatory;
+                                    v4Field.RequiredErrorMessage = field.RequiredErrorMessage;
+                                    v4Field.RegEx = field.RegEx;
 
-                                    var v4Record = new Core.Record();
-                                    v4Record.Form = v4Form.Id;
-                                    v4Record.Created = r.Created;
-                                    v4Record.Updated = r.Updated;
-                                    v4Record.State = (FormState)r.State;
-                                    v4Record.CurrentPage = r.currentPage;
-                                    v4Record.UmbracoPageId = r.umbracoPageId;
-                                    v4Record.IP = r.IP;
-                                    v4Record.MemberKey = r.MemberKey;
-                                    // field values - added in this second step as all values are otherwise deleted and reinserted which is SLOW
-                                    v4Record.RecordFields = new Dictionary<Guid, Core.RecordField>();
-                                    foreach (var kvp in r.RecordFields)
+                                    using (var pvs = new PreValueStorage(sql))
                                     {
-                                        var rf = kvp.Value;
-                                        v4Record.RecordFields.Add(kvp.Key, new Core.RecordField
+                                        var prevalues = new List<string>();
+                                        foreach (var prevalue in pvs.GetAllPreValues(field).OrderBy(x => x.SortOrder))
                                         {
-                                            Key = rf.Key,
-                                            FieldId = rf.FieldId,
-                                            Field = GetFormField(v4Form, rf.FieldId), // field needs to be set correctly, otherwise UFRecordData doesn't get written
-                                            DataType = (Core.FieldDataType)rf.DataType,
-                                            DataTypeAlias = rf.DataTypeAlias,
-                                            Values = rf.Values
-                                        });
+                                            prevalues.Add(prevalue.Value);
+                                        }
+                                        v4Field.PreValues = prevalues;
                                     }
-                                    v4Record.RecordData = v4Record.GenerateRecordDataAsJson();
 
-                                    rs4.InsertRecord(v4Record, v4Form);
+                                    v4Field.Condition = new Core.FieldCondition();
+                                    v4Field.Condition.Enabled = field.Condition.Enabled;
+                                    v4Field.Condition.ActionType = (Core.FieldConditionActionType)System.Enum.Parse(typeof(Core.FieldConditionActionType), ((int)field.Condition.ActionType).ToString()); ;
+                                    v4Field.Condition.LogicType = (Core.FieldConditionLogicType)System.Enum.Parse(typeof(Core.FieldConditionLogicType), ((int)field.Condition.LogicType).ToString()); ;
 
-                                    // reset DateTime fields to original value, InsertRecord sets them to DateTime.Now
-                                    v4Record.Created = r.Created;
-                                    v4Record.Updated = r.Updated;
+                                    var rules = new List<Core.FieldConditionRule>();
+                                    foreach (var rule in field.Condition.Rules)
+                                    {
+                                        var v4Rule = new Core.FieldConditionRule();
 
-                                    rs4.UpdateRecord(v4Record, v4Form);
+                                        v4Rule.Field = rule.Field;
+                                        v4Rule.Operator = (Core.FieldConditionRuleOperator)System.Enum.Parse(typeof(Core.FieldConditionRuleOperator), ((int)rule.Operator).ToString()); ;
+                                        v4Rule.Value = rule.Value;
+
+                                        rules.Add(v4Rule);
+                                    }
+                                    v4Field.Condition.Rules = rules;
+
+                                    using (var ss = new SettingsStorage(sql))
+                                    {
+                                        foreach (var setting in ss.GetSettingsAsList(field.Id))
+                                        {
+                                            v4Field.Settings.Add(setting.Key, setting.Value);
+                                        }
+                                    }
+                                    v4Container.Fields.Add(v4Field);
                                 }
+
+                                v4Fieldset.Containers.Add(v4Container);
+
+                                v4Page.FieldSets.Add(v4Fieldset);
+                            }
+
+                            v4Form.Pages.Add(v4Page);
+                        }
+
+                        using (var s = new Forms.Data.Storage.FormStorage())
+                        {
+                            v4Form = s.InsertForm(v4Form);
+                        }
+
+                        using (var ws = new WorkflowStorage(sql))
+                        {
+                            var wfs = ws.GetAllWorkFlows(form);
+
+                            foreach (var workflow in wfs)
+                            {
+                                using (var wsv4 = new Forms.Data.Storage.WorkflowStorage())
+                                {
+                                    var v4Workflow = new Core.Workflow();
+                                    v4Workflow.Name = workflow.Name;
+                                    v4Workflow.Id = workflow.Id;
+                                    v4Workflow.Type = workflow.Type;
+                                    v4Workflow.ExecutesOn = (Core.Enums.FormState)System.Enum.Parse(typeof(Core.Enums.FormState), ((int)workflow.ExecutesOn).ToString());
+                                    v4Workflow.Form = v4Form.Id;
+                                    v4Workflow.Settings = workflow.Settings;
+                                    wsv4.InsertWorkflow(v4Form, v4Workflow);
+                                }
+                            }
+                        }
+                    }
+
+                    if (IgnoreRecords)
+                        continue;
+
+                    // If we're importing data, this could take a while...
+                    HttpContext.Current.Server.ScriptTimeout = 90000;
+
+                    // Fix the UFRecordDataString Value field length to be compatible with the old data.
+                    FixDataStringLength(sql);
+
+                    // store records
+                    using (var rs = new RecordStorage(sql))
+                    {
+                        var records = rs.GetAllRecords(form);
+                        using (var rs4 = new Forms.Data.Storage.RecordStorage())
+                        {
+                            foreach (var r in records)
+                            {
+                                if (rs4.GetRecordByUniqueId(r.Id) != null)
+                                {
+                                    // Don't import it again.
+                                    continue;
+                                }
+
+                                var v4Record = new Core.Record();
+                                v4Record.Form = v4Form.Id;
+                                v4Record.Created = r.Created;
+                                v4Record.Updated = r.Updated;
+                                v4Record.State = (FormState)r.State;
+                                v4Record.CurrentPage = r.currentPage;
+                                v4Record.UmbracoPageId = r.umbracoPageId;
+                                v4Record.IP = r.IP;
+                                v4Record.MemberKey = r.MemberKey;
+                                // field values - added in this second step as all values are otherwise deleted and reinserted which is SLOW
+                                v4Record.RecordFields = new Dictionary<Guid, Core.RecordField>();
+                                foreach (var kvp in r.RecordFields)
+                                {
+                                    var rf = kvp.Value;
+                                    v4Record.RecordFields.Add(kvp.Key, new Core.RecordField
+                                    {
+                                        Key = rf.Key,
+                                        FieldId = rf.FieldId,
+                                        Field = GetFormField(v4Form, rf.FieldId), // field needs to be set correctly, otherwise UFRecordData doesn't get written
+                                        DataType = (Core.FieldDataType)rf.DataType,
+                                        DataTypeAlias = rf.DataTypeAlias,
+                                        Values = rf.Values
+                                    });
+                                }
+                                v4Record.RecordData = v4Record.GenerateRecordDataAsJson();
+
+                                rs4.InsertRecord(v4Record, v4Form);
+
+                                // reset DateTime fields to original value, InsertRecord sets them to DateTime.Now
+                                v4Record.Created = r.Created;
+                                v4Record.Updated = r.Updated;
+
+                                rs4.UpdateRecord(v4Record, v4Form);
                             }
                         }
                     }
